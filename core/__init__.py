@@ -1,1 +1,2 @@
-# Core module
+"""Core module"""
+from .cost_tracker import CostTracker
