@@ -29,6 +29,7 @@ from agents.reflector import ReflectorAgent
 from core.token_optimizer import TokenOptimizer
 from core.knowledge_base import KnowledgeBase
 from core.cost_tracker import CostTracker
+from tools.skill_discovery import SkillDiscoverySystem
 
 
 class MultiAgentSystemV2:
@@ -56,6 +57,7 @@ class MultiAgentSystemV2:
         self.token_optimizer = TokenOptimizer()
         self.knowledge_base = KnowledgeBase()
         self.cost_tracker = CostTracker()
+        self.skill_discovery = SkillDiscoverySystem()
         
         # 统计信息
         self.stats = {
@@ -313,10 +315,11 @@ class MultiAgentSystemV2:
         print("\n" + "="*60)
         print("🤖 Multi-Agent System v2.0 - 交互模式")
         print("="*60)
-        print("\n命令:")
+        print("命令:")
         print("  - 输入任务，系统自动分配Agent处理")
         print("  - 'stats' - 查看统计信息")
         print("  - 'improve' - 触发自我优化")
+        print("  - 'learn <关键词>' - 从网络学习Skills")
         print("  - 'quit' - 退出")
         print("="*60 + "\n")
 
@@ -340,6 +343,17 @@ class MultiAgentSystemV2:
                 
                 if cmd.lower() == 'improve':
                     await self.self_improve()
+                    continue
+                
+                if cmd.lower().startswith('learn '):
+                    query = cmd[6:].strip()
+                    print(f"\n📚 开始学习Skills: {query}")
+                    result = await self.skill_discovery.run(query)
+                    plan = self.skill_discovery.generate_upgrade_plan(result)
+                    plan_file = Path(__file__).parent / "SKILL_UPGRADE_PLAN.md"
+                    with open(plan_file, 'w', encoding='utf-8') as f:
+                        f.write(plan)
+                    print(f"\n📄 升级计划已保存到: {plan_file}")
                     continue
                 
                 await self.process_task(cmd)
